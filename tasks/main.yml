@@ -49,6 +49,9 @@
     - passlib
     - pyyaml
     - docker-compose==1.9.0
+  # TODO: Why does this use state: latest?
+  tags:
+  - skip_ansible_lint
 
 - name: clone devspace
   become: yes
@@ -72,6 +75,9 @@
     project_src: "{{ devspace_home }}"
     state: absent
   when: gitstatus.changed
+  # TODO: Can this be converted to a handler?
+  tags:
+  - skip_ansible_lint
 
 # config
 - name: ensures .ssh dir exists
@@ -104,6 +110,10 @@
   become: yes
   become_user: "{{ devspace_user }}"
   shell: ssh-keyscan github.com >> {{ devspace_home }}/slave/.ssh/known_hosts
+  # TODO: Is `ssh-keyscan github.com` static? If so hard-code the content
+  tags:
+  - skip_ansible_lint
+
 - name: chmod known_hosts
   become: yes
   become_user: "{{ devspace_user }}"
@@ -164,6 +174,9 @@
   command: "{{ devspace_home }}/rename.py {{ devspace_omero_branch }}"
   args:
     chdir: "{{ devspace_home }}"
+  # TODO: Not idempotent
+  tags:
+  - skip_ansible_lint
 
 - name: fix jenkinsUrl
   become: yes
@@ -194,7 +207,8 @@
 
 - debug: var=output
 
-- assert:
+- name: Check containers are running
+  assert:
     that:
     - "jenkins.devspace_jenkins_1.state.running"
     - "pg.devspace_pg_1.state.running"
