@@ -1,0 +1,40 @@
+---
+dependency:
+  name: galaxy
+  requirements_file: tests/requirements.yml
+
+driver:
+  name: vagrant
+
+vagrant:
+  platforms:
+    - name: centos7
+      box: centos/7
+  providers:
+    - name: virtualbox
+      type: virtualbox
+      options:
+        memory: 2048
+        cpus: 2
+  raw_config_args:
+    - "vm.network 'forwarded_port', guest: 8443, host: 8443"
+  instances:
+    - name: devspace
+      ansible_groups:
+        - vagrant-hosts
+
+ansible:
+  verbose: True
+
+# TODO: Remove this section when the role is idempotent
+molecule:
+  test:
+    sequence:
+      - destroy
+      - syntax
+      - create
+      - converge
+      - verify
+
+verifier:
+  name: testinfra

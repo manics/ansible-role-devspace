@@ -1,0 +1,22 @@
+---
+- hosts: vagrant-hosts
+  roles:
+    - role: openmicroscopy.docker
+      docker_use_ipv4_nic_mtu: True
+
+  tasks:
+    - name: Create ssh directory
+      file:
+        path: /root/.ssh
+        mode: 0700
+        state: directory
+
+    - name: Copy ssh authorized_keys
+      copy:
+        src: /home/vagrant/.ssh/authorized_keys
+        dest: /root/.ssh/authorized_keys
+        remote_src: True
+
+- hosts: all
+  roles:
+    - role: ansible-role-devspace
